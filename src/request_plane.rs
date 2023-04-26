@@ -282,7 +282,7 @@ RPA - Republic Airlines - airline
             "cargo" => PlaneType::Cargo,
             "trainer" => PlaneType::Trainer,
             "business" => PlaneType::Business,
-            s => unreachable!(s),
+            s => unreachable!("{}", s),
         };
 
         result.push((

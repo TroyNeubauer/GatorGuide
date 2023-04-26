@@ -260,7 +260,7 @@ fn label(button_id: widget::Id, label_id: widget::Id, label: &str, style: &Style
         .set(label_id, ui);
 }
 
-pub fn draw(
+pub fn _draw(
     widget_id: widget::id::Id,
     ui: &mut UiCell,
     label: String,
