@@ -3,12 +3,14 @@ use std::time::{Duration, Instant};
 use conrod_core::{text::Font, widget, widget_ids, Colorable, Positionable, Sizeable, Widget};
 use glam::DVec2;
 use glium::Surface;
+use log::info;
 
 mod airports;
 mod button_widget;
 mod loading_renderer;
 mod map;
 mod map_renderer;
+mod nmea_driver;
 mod plane_renderer;
 mod request_plane;
 mod support;
@@ -59,6 +61,8 @@ use std::fmt::Write;
 pub use util::MAP_PERF_DATA;
 
 pub fn run_app() {
+    pretty_env_logger::init();
+
     let event_loop = glium::glutin::event_loop::EventLoop::new();
     let window = glium::glutin::window::WindowBuilder::new()
         .with_title("Flight Tracker")
@@ -126,6 +130,14 @@ pub fn run_app() {
         .filer_button
         .resize(4, &mut overlay_ui.widget_id_generator());
 
+    let (nmea_tx, nmea_rx) = crossbeam_channel::bounded(16);
+    let nmea_config = nmea_driver::NmeaConfig {
+        serial_port_path: "/dev/ttyUSB0".into(),
+        baud_rate: 9600,
+        data_tx: nmea_tx,
+    };
+    let _nmea_task = nmea_config.into_task();
+
     event_loop.run(move |event, _, control_flow| {
         use glium::glutin::event::{
             ElementState, Event, MouseButton, MouseScrollDelta, VirtualKeyCode, WindowEvent,
@@ -176,6 +188,10 @@ pub fn run_app() {
         if let Some(event) = support::convert_event(&event, display.gl_window().window()) {
             map_ui.handle_event(event.clone());
             overlay_ui.handle_event(event);
+        }
+
+        while let Ok(v) = nmea_rx.try_recv() {
+            info!("got message: {v:?}");
         }
 
         match &event {

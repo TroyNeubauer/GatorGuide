@@ -51,12 +51,12 @@ pub fn pipelines(runtime: &Runtime) -> PipelineMap {
     let satellite_cache = DiskCacheData {
         folder_name: ".cache/satellite",
         image_extension: "jpg",
-        invalidate_time: Duration::from_secs(60 * 60 * 24 * 30), //One month long cache
+        invalidate_time: Duration::from_secs(60 * 60 * 24 * 120), //120 day long cache
     };
     let weather_cache = DiskCacheData {
         folder_name: ".cache/weather",
         image_extension: "png",
-        invalidate_time: Duration::from_secs(60 * 5), //Five minute cache
+        invalidate_time: Duration::from_secs(60 * 60 * 24 * 5), //Five day cache
     };
     enum_map! {
         TileKind::Satellite => TilePipeline::new(vec![
